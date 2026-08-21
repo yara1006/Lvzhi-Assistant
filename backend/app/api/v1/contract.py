@@ -1,6 +1,7 @@
 import uuid
 from typing import Annotated
 import docx
+import pdfplumber
 from io import BytesIO
 from fastapi import APIRouter, Depends, File, Form, Header, UploadFile
 from fastapi.responses import StreamingResponse
@@ -152,17 +153,35 @@ async def contract_review(
         session_row = await ensure_session_owned(session, user.id, actual_session_id)
 
     raw = await _read_limited_upload(file, settings.max_upload_bytes)
-    
+
     # 根据文件类型提取文本内容
     if file.filename and file.filename.lower().endswith('.docx'):
         try:
             doc = docx.Document(BytesIO(raw))
             contract_text = '\n'.join([p.text for p in doc.paragraphs])
-        except Exception as e:
+        except Exception:
             contract_text = raw.decode("utf-8", errors="replace")
+    elif file.filename and file.filename.lower().endswith('.pdf'):
+        try:
+            text_parts = []
+            with pdfplumber.open(BytesIO(raw)) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_parts.append(page_text)
+            contract_text = "\n\n".join(text_parts)
+            if not contract_text.strip():
+                raise ValueError("PDF contains no extractable text")
+        except Exception:
+            contract_text = ""
+            raise AppError(
+                "pdf_no_text",
+                "PDF 文件中未找到可提取的文本，可能是扫描件或图片型 PDF，暂不支持 OCR 识别。请将 PDF 转换为文字型 PDF 或直接粘贴合同文本进行审查。",
+                status_code=400,
+            )
     else:
         contract_text = raw.decode("utf-8", errors="replace")
-    
+
     if len(contract_text) > MAX_INLINE_TEXT_CHARS:
         contract_text = contract_text[:MAX_INLINE_TEXT_CHARS] + "\n\n[文本已截断]"
 
