@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: lvzhi_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-lvzhi123}
+      MYSQL_DATABASE: luzhi_assistant
+      MYSQL_CHARSET: utf8mb4
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lvzhi_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql+asyncmy://root:${DB_ROOT_PASSWORD:-lvzhi123}@db:3306/luzhi_assistant?charset=utf8mb4
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      YUANQI_API_KEY: ${YUANQI_API_KEY:-}
+      YUANQI_ASSISTANT_ID: ${YUANQI_ASSISTANT_ID:-}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:8000
+      FRONTEND_PATH: /app/frontend
+    volumes:
+      - ./frontend:/app/frontend:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: python:3.12-slim
+    container_name: lvzhi_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    working_dir: /app
+    volumes:
+      - ./frontend:/app:ro
+    command: python -m http.server 3000
+
+volumes:
+  db_data:
