@@ -1,6 +1,7 @@
 """
 阿里云短信认证服务 - 使用官方推荐配套API
 """
+import logging
 import os
 import random
 from typing import Tuple
@@ -14,6 +15,8 @@ from alibabacloud_dypnsapi20170525.models import (
     CheckSmsVerifyCodeRequest  # 保留作为备选
 )
 from alibabacloud_tea_openapi import models as open_api_models
+
+logger = logging.getLogger(__name__)
 
 # 加载 .env 文件中的环境变量
 env_path = Path(__file__).parent.parent.parent / '.env'
@@ -45,7 +48,7 @@ def send_verification_code(phone_number: str) -> Tuple[bool, str]:
         
         if response.body.code == 'OK':
             # 发送成功，可以打印日志
-            print(f"验证码已发送到 {phone_number}")
+            logger.info(f"验证码已发送到 {phone_number}")
             return True, "验证码发送成功"
         else:
             return False, response.body.message

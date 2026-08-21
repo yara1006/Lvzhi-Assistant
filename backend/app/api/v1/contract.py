@@ -149,9 +149,7 @@ async def contract_review(
         await session.flush()
         session_row = new_session
     else:
-        session_row = await ensure_session_owned(session, user.id, actual_session_id) # 获取现有会话
-    
-    # await ensure_session_owned(session, user.id, actual_session_id) # 这一行不再需要，因为上面已经获取或创建了 session_row
+        session_row = await ensure_session_owned(session, user.id, actual_session_id)
 
     raw = await _read_limited_upload(file, settings.max_upload_bytes)
     
@@ -346,9 +344,7 @@ async def contract_generate(
         await session.flush()
         session_row = new_session
     else:
-        session_row = await ensure_session_owned(session, user.id, actual_session_id) # 获取现有会话
-    
-    # await ensure_session_owned(session, user.id, actual_session_id) # 这一行不再需要
+        session_row = await ensure_session_owned(session, user.id, actual_session_id)
 
     assistant_id = settings.assistant_id_for("contract_generate")
     lines = [

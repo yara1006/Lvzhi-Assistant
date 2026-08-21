@@ -92,7 +92,7 @@ async def test_jwt_login_and_auth(monkeypatch: pytest.MonkeyPatch) -> None:
                 json={"phone": "13800138000"},
             )
             assert send_code.status_code == 200
-            code = send_code.json()["code"]
+            code = send_code.json()["dev_code"]
             assert code is not None
 
             login = await client.post(

@@ -16,18 +16,20 @@ async def ensure_session_owned(
     session: AsyncSession,
     user_uuid: str,
     session_id: str | None,
-) -> None:
-    """验证会话是否属于当前用户"""
+) -> ChatSession | None:
+    """验证会话是否属于当前用户，返回会话对象"""
     if not session_id:
-        return
+        return None
     r = await session.execute(
         select(ChatSession).where(
             ChatSession.id == session_id,
             ChatSession.user_id == user_uuid,
         )
     )
-    if r.scalar_one_or_none() is None:
+    row = r.scalar_one_or_none()
+    if row is None:
         raise AppError("invalid_session", "会话不存在或无权访问", status_code=403)
+    return row
 
 
 async def create_or_get_session(

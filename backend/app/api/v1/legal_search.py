@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.api.deps import get_yuanqi_client, require_service_auth, resolve_user_id
-from app.services.yuanqi_client import YuanqiClient
+from app.services.yuanqi_client import YuanqiClient, extract_assistant_text
 from app.core.config import Settings, get_settings
 from app.core.exceptions import AppError
 from app.db.models.chat_session import ChatSession
@@ -48,9 +48,7 @@ async def clause_search(
         await session.flush()
         session_row = new_session
     else:
-        session_row = await ensure_session_owned(session, user.id, actual_session_id) # 获取现有会话
-    
-    # await ensure_session_owned(session, user.id, actual_session_id) # 这一行不再需要
+        session_row = await ensure_session_owned(session, user.id, actual_session_id)
 
     # 判断使用哪个智能体配置
     if settings.hunyuan_assistant_id:

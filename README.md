@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/badge/FastAPI-0.115+-green?logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/MySQL-8.0+-orange?logo=mysql" alt="MySQL">
   <img src="https://img.shields.io/badge/License-MIT-blue" alt="License">
-  <img src="https://img.shields.io/github/actions/workflow/status/yara1006/lvzhi_assistant/ci.yml?label=CI&logo=github" alt="CI">
+  <img src="https://img.shields.io/github/actions/workflow/status/yara1006/Lvzhi-Assistant/ci.yml?label=CI&logo=github" alt="CI">
 </p>
 
 <p align="center">
@@ -55,8 +55,8 @@ graph TB
 ### 方式一：Docker 一键启动（推荐）
 
 ```bash
-git clone https://github.com/yara1006/lvzhi_assistant.git
-cd lvzhi_assistant
+git clone https://github.com/yara1006/Lvzhi-Assistant.git
+cd Lvzhi-Assistant
 cp .env.example .env
 # 编辑 .env 填入你的 API Key
 docker-compose up -d
@@ -101,7 +101,7 @@ make docker-up   # Docker 启动全部服务
 ## 项目结构
 
 ```text
-lvzhi_assistant/
+Lvzhi-Assistant/
 ├── backend/                  # FastAPI 核心后端
 │   ├── app/
 │   │   ├── api/v1/           # 版本化 API 路由

@@ -29,7 +29,7 @@ def _create_access_token(settings: Settings, user_id: str) -> str:
     payload = {
         "sub": user_id,
         "iat": int(now.timestamp()),
-        "exp": int((now + timedelta(days=30)).timestamp()),
+        "exp": int((now + timedelta(days=7)).timestamp()),
     }
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
